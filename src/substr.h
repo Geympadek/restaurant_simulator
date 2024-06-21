@@ -11,6 +11,7 @@ namespace engix
         using Iterator = const C*;
         using String = std::basic_string<C>;
 
+        constexpr Substr() : _begin(nullptr), _end(nullptr) {}
         Substr(String::const_iterator begin, String::const_iterator end) noexcept
         {
             if (begin == end)
@@ -173,3 +174,22 @@ namespace engix
         Iterator _end;
     };
 }
+
+template<class T>
+struct std::hash<engix::Substr<T>>
+{
+    size_t operator()(const engix::Substr<T>& substr) const noexcept
+    {
+        //Some primes
+        constexpr size_t A = 54059;
+        constexpr size_t B = 76963;
+        constexpr size_t FIRSTH = 37;
+
+        size_t h = FIRSTH;
+        for (auto c : substr)
+        {
+            h = (h * A) ^ (static_cast<size_t>(c) * B);
+        }
+        return h;
+    }
+};
