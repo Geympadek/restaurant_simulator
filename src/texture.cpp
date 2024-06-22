@@ -130,13 +130,14 @@ void engix::Texture::render(Vector2d position, double scale, Rotation rotation, 
     auto renderScale = (scaling == Scaling::STRETCH) ? pixelScale : roundPixelScale;
     auto appliedScale = scale * renderScale;
 
-    auto renderPosition = position * renderScale;
+    position *= renderScale;
     center *= renderScale;
 
-    SDL_Rect renderRect {static_cast<int>(renderPosition.x), static_cast<int>(renderPosition.y)};
-
-    renderRect.w = static_cast<int>(_pixelImage.width * appliedScale);
-    renderRect.h = static_cast<int>(_pixelImage.height * appliedScale);
+    SDL_Rect renderRect {
+        static_cast<int>(position.x), 
+        static_cast<int>(position.y),
+        static_cast<int>(_pixelImage.width * appliedScale),
+        static_cast<int>(_pixelImage.height * appliedScale)};
 
     SDL_Point sdlCenter{static_cast<int>(center.x), static_cast<int>(center.y)};
 
@@ -152,6 +153,7 @@ void engix::Texture::render(Vector2d position, Rect clip, double scale, Rotation
     auto appliedScale = scale * renderScale;
 
     Vector2i renderPosition = position * renderScale;
+    center *= renderScale;
 
     SDL_Rect renderRect = {renderPosition.x, renderPosition.y};
 

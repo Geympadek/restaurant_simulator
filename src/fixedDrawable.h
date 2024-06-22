@@ -14,7 +14,7 @@ namespace engix
         FixedDrawable(shared_ptr<Texture> texture) : _enable(true), _texture(std::move(texture)) {}
         virtual ~FixedDrawable() {}
 
-        virtual void render() const {_texture->render(_position, _scale, _rotation, _position, _flip, _scaling);}
+        virtual void render() const {_texture->render(_position, _scale, _rotation, _center, _flip, _scaling);}
         virtual void update(Input& input)
         {
         }
@@ -24,6 +24,9 @@ namespace engix
     
         virtual Vector2d position() const {return _position;}
         virtual void position(Vector2d position) {_position = position;}
+
+        virtual Vector2d center() const {return _center;}
+        virtual void center(Vector2d center) {_center = center;}
 
         virtual double scale() const {return _scale;}
         virtual void scale(double scale) {_scale = scale;}
@@ -40,6 +43,7 @@ namespace engix
         bool _enable = false;
     
         Vector2d _position;
+        Vector2d _center;
         double _scale = 1.0;
 
         Rotation _rotation;
