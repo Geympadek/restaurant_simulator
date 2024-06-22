@@ -27,6 +27,28 @@ namespace engix
             return start.x <= point.x && start.x + static_cast<int>(width) >= point.x &&
                 start.y <= point.y && start.y + static_cast<int>(height) >= point.y;
         }
+        constexpr static bool checkIntersection(Rect a, Rect b)
+        {
+            auto aleft = a.start.x;
+            auto aright = aleft + a.width;
+            auto aup = a.start.y;
+            auto adown = aup + a.height;
+
+            auto bleft = b.start.x;
+            auto bright = bleft + b.width;
+            auto bup = b.start.y;
+            auto bdown = bup + b.height;
+
+            if (aright < bleft || bright < aleft)
+            {
+                return false;
+            }
+            if (adown < bup || bdown < aup)
+            {
+                return false;
+            }
+            return true; 
+        }
         
         constexpr operator SDL_Rect() const noexcept {return {start.x, start.y, static_cast<int>(width), static_cast<int>(height)};}
 
