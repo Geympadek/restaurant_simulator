@@ -1,13 +1,20 @@
 #include "drawable.h"
 
 engix::Drawable::Drawable(std::shared_ptr<Texture> texture) 
-: FixedDrawable(texture)
+: FixedDrawable(std::move(texture)), _width(_texture->width()), _height(_texture->height())
+{
+}
+
+engix::Drawable::Drawable(std::shared_ptr<Texture> texture, int width, int height)
+: FixedDrawable(std::move(texture)), _width(width), _height(height)
 {
 }
 
 void engix::Drawable::render(const Camera &camera) const
 {
-    auto screenPos = _position - camera.position();
+    Vector2i centerOfScreen(gScreen.width / 2, gScreen.height / 2);
+
+    auto screenPos = _position - camera.position() + centerOfScreen;
     auto screenScale = _scale * camera.scale();
-    _texture->render(screenPos, screenScale, _rotation, screenPos, _flip, _scaling);
+    _texture->render(screenPos, screenScale, _rotation, _center, _flip, _scaling);
 }
