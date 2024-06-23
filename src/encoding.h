@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <memory>
 #include <type_traits>
+#include "substr.h"
 
 using std::strcmp;
 
@@ -21,13 +22,38 @@ namespace engix
             Encoding to;
 
             constexpr Format(Encoding from = UTF8, Encoding to = UTF8) noexcept : from(from), to(to) {}
-            Format(const char* from, const char* to) noexcept : from(encodingFromStr(from)), to(encodingFromStr(to)) {}
-            Format(const std::string& from, const std::string& to) noexcept : Format(from.c_str(), to.c_str()) {}
+            constexpr Format(Substr<char> from, Substr<char> to) noexcept : from(encodingFromStr(from)), to(encodingFromStr(to)) {}
 
             constexpr bool operator==(const Format& format) const noexcept {return from == format.from && to == format.to;}
         
-            static Encoding encodingFromStr(const char* str) noexcept;
-            static const char* strFromEncoding(Encoding encoding) noexcept;
+            constexpr static Encoding encodingFromStr(Substr<char> str) noexcept
+            {
+                if (str == "UTF-16LE")
+                    return Encoding::UTF16LE;
+                if (str == "UTF-16BE")
+                    return Encoding::UTF16BE;
+                if (str == "UTF-32LE")
+                    return Encoding::UTF32LE;
+                if (str == "UTF-32BE")
+                    return Encoding::UTF32BE;
+                return Encoding::UTF8;
+            }
+            constexpr static const char* strFromEncoding(Encoding encoding) noexcept
+            {
+                switch (encoding)
+                {
+                case UTF16LE:
+                    return "UTF-16LE";
+                case UTF16BE:
+                    return "UTF-16BE";
+                case UTF32LE:
+                    return "UTF-32LE";
+                case UTF32BE:
+                    return "UTF-32BE";
+                default:
+                    return "UTF-8";
+                }
+            }
         };
 
         inline constexpr size_t hashFormat(const Format& format)
