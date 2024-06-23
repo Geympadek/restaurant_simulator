@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "window.h"
 
 using namespace engix;
 

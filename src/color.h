@@ -2,8 +2,6 @@
 
 #include <SDL.h>
 #include <string>
-#include <sstream>
-#include <cstring>
 
 namespace engix
 {

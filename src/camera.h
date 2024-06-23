@@ -1,6 +1,5 @@
 #pragma once
 
-#include "window.h"
 #include "vector2.h"
 
 namespace engix

@@ -7,7 +7,6 @@
 
 #include "vector2.h"
 #include "color.h"
-#include "window.h"
 
 #include "resource.h"
 #include "rotation.h"

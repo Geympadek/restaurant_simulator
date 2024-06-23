@@ -1,4 +1,6 @@
 #include "color.h"
+#include <sstream>
+#include <cstring>
 
 using namespace engix;
 
