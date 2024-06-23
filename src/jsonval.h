@@ -4,10 +4,11 @@
 #include <fstream>
 #include <memory>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <type_traits>
 #include <cassert>
+#include "substr.h"
 
 #include "path.h"
 
@@ -23,23 +24,9 @@ concept arithmetic = std::is_arithmetic_v<T>;
 
 namespace json
 {
+    using Key = engix::Substr<char>;
     class Value
     {
-        //Types
-        struct Key
-        {
-            Key(std::string str) : str(std::move(str)) {}
-            Key(const char* c_str) : str(c_str) {}
-
-            Key(Key&& key) : str(std::move(key.str)) {}
-            Key(const Key& key) : str(key.str) {}
-
-            bool operator<(const Key& key) const {return str < key.str;}
-
-            bool operator==(const Key& key) const {return str == key.str;}
-
-            std::string str;
-        };
     public:
         enum class Type {NULL_VAL, BOOLEAN, NUMBER, OBJECT, ARRAY, STRING};
 
@@ -106,7 +93,7 @@ namespace json
         std::string _value;
         Type _type;
         
-        std::map<Key, Value> _values;
+        std::unordered_map<Key, Value> _values;
     };
     
     template <class T>
@@ -153,7 +140,7 @@ namespace json
             if (value.second._type == Type::NULL_VAL)
                 continue;
                 
-            result += toString<std::string>(value.first.str) + ':' + toString<Value>(value.second) + ','; 
+            result += toString<std::string>(value.first.toString()) + ':' + toString<Value>(value.second) + ',';
         }
         result[result.size() - 1] = '}';
         return result;
