@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <string>
+#include "substr.h"
 
 namespace engix
 {
@@ -16,12 +17,12 @@ namespace engix
         
         constexpr Color(uint32_t hex = 0x00000000) noexcept { loadFromHex(hex); }
         // Color(const Json::Value& json) { loadFromJson(json); }
-        Color(const std::string& str) noexcept { loadFromString(str); }
-        Color(const char* str) noexcept {loadFromString(str);}
+        // Color(const std::string& str) noexcept { loadFromString(str); }
+        // Color(const char* str) noexcept {loadFromString(str);}
+        Color(Substr<char> str) noexcept {loadFromString(str);}
 
         constexpr void loadFromHex(uint32_t color) noexcept;
-        void loadFromString(const std::string& str) noexcept {loadFromString(str.c_str());}
-        void loadFromString(const char* str) noexcept;
+        void loadFromString(Substr<char> str) noexcept;
         // void loadFromJson(const Json::Value& json);
 
         constexpr uint32_t hex() const noexcept {return (red << 24) | (green << 16) | (blue << 8) | alpha;}
