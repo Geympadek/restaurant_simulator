@@ -7,6 +7,35 @@
 namespace engix
 {
     template <class C>
+    class StrWrap
+    {
+    public:
+        using String = std::basic_string<C>;
+        using C_str = const C*;
+
+        constexpr StrWrap(C_str ptr) noexcept : _ptr(ptr) {}
+        StrWrap(const String& str) noexcept : _ptr(str.c_str()) {}
+
+        constexpr C operator[](size_t index) const noexcept {return _ptr[index];}
+        constexpr StrWrap operator+(size_t index) const noexcept {return _ptr + index;}
+        constexpr void operator+=(size_t index) noexcept {_ptr += index;}
+        constexpr void operator-=(size_t index) noexcept {_ptr -= index;}
+        constexpr StrWrap operator++() noexcept {return ++_ptr;}
+        constexpr StrWrap operator++(int) noexcept {return _ptr++;}
+        constexpr StrWrap operator--() noexcept {return --_ptr;}
+        constexpr StrWrap operator--(int) noexcept {return --_ptr;}
+    public:
+        constexpr C_str c_str() const noexcept {return _ptr;}
+        constexpr void c_str(C_str ptr) noexcept {_ptr = ptr;}
+
+        constexpr operator C_str() const noexcept {return _ptr;}
+        
+        constexpr String to_str() const noexcept {return String(_ptr);}
+    private:
+        C_str _ptr;
+    };
+
+    template <class C>
     class Substr
     {
     public:
@@ -27,29 +56,21 @@ namespace engix
             }
         }
         constexpr Substr(Iterator begin, Iterator end) noexcept
-        : _begin(begin), _end(end)
-        {
-        }
+        : _begin(begin), _end(end) {}
+        
         Substr(const String& str) noexcept
-        : Substr(str.begin(), str.end())
-        {
-        }
+        : Substr(str.begin(), str.end()) {}
+
         constexpr Substr(const C* c_str) noexcept
-        : _begin(c_str), _end(_begin + std::char_traits<C>::length(c_str))
-        {
-        }
+        : _begin(c_str), _end(_begin + std::char_traits<C>::length(c_str)) {}
+
+        constexpr Substr(StrWrap<C> str) noexcept
+        : Substr(str.c_str()) {}
 
         constexpr size_t find(C c) const noexcept {return std::find(_begin, _end, c);}
-        constexpr size_t find(Substr str) const noexcept 
-        {
-            auto srcSize = this->findSize();
-            auto strSize = str.findSize();
-            // for (size_t i = 0; i < strSize)
-            return 0;
-        }
         constexpr size_t findSize() const noexcept {return std::distance(_begin, _end);}
         
-        constexpr String toString() const noexcept
+        String toString() const noexcept
         {
             return {_begin, _end};
         }
