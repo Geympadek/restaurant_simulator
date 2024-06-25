@@ -16,9 +16,6 @@ namespace engix
         constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept : red(red), green(green), blue(blue), alpha(alpha) {}
         
         constexpr Color(uint32_t hex = 0x00000000) noexcept { loadFromHex(hex); }
-        // Color(const Json::Value& json) { loadFromJson(json); }
-        // Color(const std::string& str) noexcept { loadFromString(str); }
-        // Color(const char* str) noexcept {loadFromString(str);}
         Color(Substr<char> str) noexcept {loadFromString(str);}
 
         constexpr void loadFromHex(uint32_t color) noexcept;
