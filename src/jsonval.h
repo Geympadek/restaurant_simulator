@@ -24,7 +24,30 @@ concept arithmetic = std::is_arithmetic_v<T>;
 
 namespace json
 {
-    using Key = engix::Substr<char>;
+    struct Key
+    {
+        Key() = default;
+        Key(const char* c_str) noexcept : str(c_str) {}
+        Key(std::string str) noexcept : str(std::move(str)) {}
+        Key(engix::Substr<char> ss) noexcept : str(ss.toString()) {}
+
+        bool operator==(const Key& key) const noexcept {return str == key.str;}
+        std::string str;
+    };
+}
+
+template <>
+struct std::hash<json::Key>
+{
+    size_t operator()(const json::Key& key) const noexcept
+    {
+        std::hash<std::string> hasher;
+        return hasher(key.str);
+    }
+};
+
+namespace json
+{
     class Value
     {
     public:
@@ -140,7 +163,7 @@ namespace json
             if (value.second._type == Type::NULL_VAL)
                 continue;
                 
-            result += toString<std::string>(value.first.toString()) + ':' + toString<Value>(value.second) + ',';
+            result += toString<std::string>(value.first.str) + ':' + toString<Value>(value.second) + ',';
         }
         result[result.size() - 1] = '}';
         return result;
