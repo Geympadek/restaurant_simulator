@@ -3,6 +3,7 @@
 #include "fixedDrawable.h"
 #include "camera.h"
 #include <memory>
+#include "window.h"
 
 namespace engix
 { 

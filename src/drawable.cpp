@@ -14,7 +14,7 @@ void engix::Drawable::render(const Camera &camera) const
 {
     Vector2i centerOfScreen(gScreen.width / 2, gScreen.height / 2);
 
-    auto screenPos = _position - camera.position() + centerOfScreen;
+    auto screenPos = (_position - camera.position()) * camera.scale() + centerOfScreen;
     auto screenScale = _scale * camera.scale();
     _texture->render(screenPos, screenScale, _rotation, _center, _flip, _scaling);
 }
