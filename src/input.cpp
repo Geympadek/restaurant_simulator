@@ -1,6 +1,7 @@
 #include "input.h"
 #include "window.h"
 #include "encoding.h"
+#include "assets.h"
 
 using namespace engix;
 
@@ -27,6 +28,19 @@ void Input::update()
     handleMouseMovement();
 
     blinkTextCursor = static_cast<int>(cursorClock.millis()) % 1000 < 500;
+}
+
+void engix::Input::loadControls()
+{
+    auto json = json::Value::loadFromFile(assets::DATA_PATH + "controls.json");
+    auto foo = json["controls"];
+    auto controlsJson = json["controls"].as<std::vector<json::Value>>();
+    for (const auto& controlJson : controlsJson)
+    {
+        assert(controlJson.isMember("function") && controlJson.isMember("key"));
+        auto scancode = SDL_GetScancodeFromName(controlJson["key"].as<std::string>().c_str());
+        controls[Substr(controlJson["function"].as<std::string>())] = scancode;
+    }
 }
 
 void engix::Input::handleEvents()
@@ -66,6 +80,11 @@ void engix::Input::handleEvents()
 
 void engix::Input::handleKeyboard()
 {
+    auto keyStates = SDL_GetKeyboardState(nullptr);
+    for (auto control : controls)
+    {
+        inputs[control.first] = keyStates[control.second];
+    }
 }
 
 void engix::Input::handleMouseMovement()

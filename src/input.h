@@ -6,9 +6,11 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <unordered_map>
 
 #include "clock.h"
 #include "vector2.h"
+#include "controls.h"
 
 using std::u16string;
 
@@ -27,9 +29,11 @@ namespace engix
             bool isShown = true;
         } cursor;
 
-        Input(Input* prevInput = nullptr) : prevInput(prevInput) {}
+        Input(Input* prevInput = nullptr) : prevInput(prevInput) {loadControls();}
         void update();
     private:
+        void loadControls();
+
         void handleEvents();
         void handleKeyboard();
         void handleMouseMovement();
@@ -44,6 +48,9 @@ namespace engix
         void onRightDown(const SDL_KeyboardEvent& e);
     public:
         Input* prevInput = nullptr;
+
+        std::unordered_map<Control, SDL_Scancode> controls;
+        std::unordered_map<Control, bool> inputs;
 
         u16string text;
         int textCursor = 0;

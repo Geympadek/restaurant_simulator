@@ -1,0 +1,20 @@
+{
+    "controls": [
+        {
+            "function": "left",
+            "key": "A"
+        },
+        {
+            "function": "right",
+            "key": "D"
+        },
+        {
+            "function": "up",
+            "key": "W"
+        },
+        {
+            "function": "down",
+            "key": "S"
+        }
+    ]
+}
