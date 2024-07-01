@@ -2,28 +2,36 @@
 
 #include "vector2.h"
 #include "rect.h"
+#include "color.h"
+#include "camera.h"
 
 namespace engix
 {
     class Collider
     {
     public:
-        Collider() {}
-        Collider(Vector2i shift, int width, int height) : _rect(shift, width, height) {}
-        Collider(Rect rect) : _rect(rect) {}
+        constexpr Collider() noexcept {}
+        constexpr Collider(int x, int y, int width, int height) noexcept : _rect(x, y, width, height) {}
+        constexpr Collider(Vector2i shift, int width, int height) noexcept : _rect(shift, width, height) {}
+        constexpr Collider(Rect rect) noexcept : _rect(rect) {}
     
-        static bool checkCollision(Vector2i apos, Collider a, Vector2i bpos, Collider b);
+        static constexpr bool checkCollision(Vector2i apos, double ascale, Collider a, Vector2i bpos, double bscale, Collider b)
+        {return Rect::checkIntersection(a.toRect(apos, ascale), b.toRect(bpos, bscale));}
+        static constexpr Rect intersection(Vector2i apos, double ascale, Collider a, Vector2i bpos, double bscale, Collider b) noexcept
+        {return Rect::intersection(a.toRect(apos, ascale), b.toRect(bpos, bscale));}
+
+        void render(Vector2i pos, double scale, Color color, const Camera& cam) const noexcept;
     public:
-        Vector2i shift() const {return _rect.start;}
-        void shift(Vector2i shift) {_rect.start = shift;}
+        constexpr Vector2i shift() const noexcept {return _rect.start;}
+        constexpr void shift(Vector2i shift) noexcept {_rect.start = shift;}
 
-        int width() const {return _rect.width;}
-        void width(int width) {_rect.width = width;}
-        int height() const {return _rect.height;}
-        void height(int height) {_rect.height = height;}
+        constexpr int width() const noexcept {return _rect.width;}
+        constexpr void width(int width) noexcept {_rect.width = width;}
+        constexpr int height() const noexcept {return _rect.height;}
+        constexpr void height(int height) noexcept {_rect.height = height;}
 
-        Rect rect() const {return _rect;}
-        void rect(Rect rect) {_rect = rect;}
+        constexpr Rect toRect(Vector2i pos, double scale) const noexcept 
+        {return {pos + _rect.start, static_cast<int>(scale * _rect.width), static_cast<int>(scale * _rect.height)};}
     protected:
         Rect _rect;
     };

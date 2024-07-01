@@ -1,9 +1,14 @@
 #include "collider.h"
+#include "window.h"
 
-bool engix::Collider::checkCollision(Vector2i apos, Collider a, Vector2i bpos, Collider b)
+using namespace engix;
+
+void engix::Collider::render(Vector2i pos, double scale, Color color, const Camera &cam) const noexcept
 {
-    a.shift(a.shift() + apos);
-    b.shift(b.shift() + bpos);
+    Vector2i centerOfScreen(gScreen.width / 2, gScreen.height / 2);
 
-    return Rect::checkIntersection(a.rect(), b.rect());
+    auto screenPos = (pos + _rect.start - cam.position()) * cam.scale() + centerOfScreen;
+    auto screenScale = scale * cam.scale();
+    Rect rect(screenPos, static_cast<int>(_rect.width * screenScale), static_cast<int>(_rect.height * screenScale));
+    rect.render(color);
 }
