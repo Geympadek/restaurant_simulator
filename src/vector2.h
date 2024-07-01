@@ -4,12 +4,14 @@
 #include "jsonval.h"
 #include "rotation.h"
 
+#include <SDL.h>
+
 namespace engix
 {
     constexpr double DEG_TO_RADIANS = std::numbers::pi_v<float> / 180;
     constexpr double RADIANS_TO_DEG = 180 / std::numbers::pi_v<float>;
 
-    enum class Direction {HORIZONTAL, VERTICAL};
+    enum class Orientation {HORIZONTAL, VERTICAL};
     
     template <arithmetic T>
     class Vector2
@@ -19,20 +21,17 @@ namespace engix
         T y = 0;
     public:
         constexpr Vector2() noexcept {}
-        template <typename _T, typename __T>
-        constexpr Vector2(_T x, __T y) noexcept : x(static_cast<T>(x)), y(static_cast<T>(y))
-        {
-            
-        }
+        constexpr Vector2(T val, Orientation axis) noexcept {(axis == Orientation::HORIZONTAL ? x : y) = val; }
+        constexpr Vector2(T x, T y) noexcept : x(x), y(y){}
         template <typename _T>
         constexpr Vector2 operator+(const _T& a) const noexcept
         {
-            return {x + a, y + a};
+            return {static_cast<T>(x + a), static_cast<T>(y + a)};
         }
         template <typename _T>
         constexpr Vector2 operator+(const Vector2<_T>& a) const noexcept 
         {
-            return {x + a.x, y + a.y};
+            return {static_cast<T>(x + a.x), static_cast<T>(y + a.y)};
         }
         template <typename _T>
         constexpr void operator+=(const _T& a) noexcept
@@ -47,12 +46,12 @@ namespace engix
         template <typename _T>
         constexpr Vector2 operator-(const _T& a) const noexcept
         {
-            return {x - a, y - a};
+            return {static_cast<T>(x - a), static_cast<T>(y - a)};
         }
         template <typename _T>
         constexpr Vector2 operator-(const Vector2<_T>& a) const noexcept
         {
-            return {x - a.x, y - a.y};
+            return {static_cast<T>(x - a.x), static_cast<T>(y - a.y)};
         }
         template <typename _T>
         constexpr void operator-=(const _T& a) noexcept
@@ -67,12 +66,12 @@ namespace engix
         template <typename _T>
         constexpr Vector2 operator*(const _T& a) const noexcept
         {
-            return {x * a, y * a};
+            return {static_cast<T>(x * a), static_cast<T>(y * a)};
         }
         template <typename _T>
         constexpr Vector2 operator*(const Vector2<_T>& a) const noexcept 
         {
-            return {x * a.x, y * a.y};
+            return {static_cast<T>(x * a.x), static_cast<T>(y * a.y)};
         }
         template <typename _T>
         constexpr void operator*=(const Vector2<_T>& a) noexcept
@@ -87,12 +86,12 @@ namespace engix
         template <typename _T>
         constexpr Vector2 operator/(const _T& a) const noexcept
         {
-            return {x / a, y / a};
+            return {static_cast<T>(x / a), static_cast<T>(y / a)};
         }
         template <typename _T>
         constexpr Vector2 operator/(const Vector2<_T>& a) const noexcept 
         {
-            return {x / a.x, y / a.x};
+            return {static_cast<T>(x / a.x), static_cast<T>(y / a.x)};
         }
         template <typename _T>
         constexpr void operator/=(const _T& a) noexcept
@@ -113,11 +112,6 @@ namespace engix
         constexpr bool operator==(const Vector2<_T>& a) noexcept
         {
             return x == a.x && y == a.y;
-        }
-        template <typename _T>
-        constexpr bool operator!=(const Vector2<_T>& a) noexcept
-        {
-            return x != a.x || y != a.y;
         }
 
         std::string asString() const noexcept
@@ -173,13 +167,13 @@ namespace engix
             }
             return vector / length;
         }
-        T& operator[](Direction direction)
+        T& operator[](Orientation direction)
         {
-            return direction == Direction::HORIZONTAL ? x : y;
+            return direction == Orientation::HORIZONTAL ? x : y;
         }
-        T operator[](Direction direction) const
+        T operator[](Orientation direction) const
         {
-            return direction == Direction::HORIZONTAL ? x : y;
+            return direction == Orientation::HORIZONTAL ? x : y;
         }
         friend std::ostream& operator<<(std::ostream &os, const Vector2 &dt) noexcept
         {
@@ -197,6 +191,11 @@ namespace engix
         {
             return toJson();
         }
+        constexpr operator SDL_Point() const noexcept
+        {
+            return {static_cast<int>(x), static_cast<int>(y)};
+        }
+
         static Vector2 fromJson(const json::Value& json) noexcept
         {
             using JsonType = json::Value::Type;
