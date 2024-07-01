@@ -16,14 +16,23 @@ namespace engix
         Drawable(std::shared_ptr<Texture> texture, int width, int height);
         virtual ~Drawable() {}
 
+        Drawable(const Drawable& a);
+        Drawable(Drawable&&) = default;
+
         virtual void render(const Camera& camera) const;
+    protected:
+        void renderClip(const Camera& camera, Rect clip) const;
     private:
         //Hoping that this function will not be accessable
         virtual void render() const override {}
     public:
-        int width() const {return _width;}
-        int height() const {return _height;}
+        size_t id() const noexcept {return _id;}
+
+        virtual int width() const noexcept {return _width;}
+        virtual int height() const noexcept {return _height;}
     protected:
+        size_t _id = 0;
+
         int _width;
         int _height;
     };
