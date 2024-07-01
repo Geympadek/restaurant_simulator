@@ -45,7 +45,7 @@
 //     _point.render();
 // }
 
-engix::Slider::Slider(Direction orientation, std::shared_ptr<Texture> line, std::shared_ptr<Texture> point, Vector2i pointShift, int length)
+engix::Slider::Slider(Orientation orientation, std::shared_ptr<Texture> line, std::shared_ptr<Texture> point, Vector2i pointShift, int length)
  : _orientation(orientation), VisualElement(std::move(line)), _point(std::move(point)), _pointShift(pointShift), _length(length)
 {
     _point.relativePos(pointShift);
@@ -63,7 +63,7 @@ void engix::Slider::update(Input& input)
         Vector2i pointPos = _point.position();
 
         int mousePos;
-        if (_orientation == Direction::HORIZONTAL)
+        if (_orientation == Orientation::HORIZONTAL)
         {
             start = static_cast<int>(_position.x) + _pointShift.x;
             end += start;
