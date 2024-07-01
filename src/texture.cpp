@@ -125,24 +125,7 @@ void engix::Texture::free() noexcept
 
 void engix::Texture::render(Vector2d position, double scale, Rotation rotation, Vector2d center, Flip flip, Scaling scaling) const
 {
-    if (!_isLoaded)
-        return;
-
-    auto renderScale = (scaling == Scaling::STRETCH) ? pixelScale : roundPixelScale;
-    auto appliedScale = scale * renderScale;
-
-    position *= renderScale;
-    center *= renderScale;
-
-    SDL_Rect renderRect {
-        static_cast<int>(position.x), 
-        static_cast<int>(position.y),
-        static_cast<int>(_pixelImage.width * appliedScale),
-        static_cast<int>(_pixelImage.height * appliedScale)};
-
-    SDL_Point sdlCenter{static_cast<int>(center.x), static_cast<int>(center.y)};
-
-    SDL_RenderCopyEx(gRenderer, sdlTexture.get(), nullptr, &renderRect, rotation.degs(), &sdlCenter, static_cast<SDL_RendererFlip>(flip));
+    render(position, Rect(0, 0, _pixelImage.width, _pixelImage.height), scale, rotation, center, flip, scaling);
 }
 
 void engix::Texture::render(Vector2d position, Rect clip, double scale, Rotation rotation, Vector2d center, Flip flip, Scaling scaling) const
