@@ -3,9 +3,14 @@
 #include "vector2.h"
 #include <SDL.h>
 #include "math.h"
+#include "color.h"
 
 namespace engix
 {
+    extern SDL_Renderer* gRenderer;
+    extern double pixelScale;
+    extern double roundPixelScale;
+
     struct Rect
     {
         Vector2i start;
@@ -21,13 +26,19 @@ namespace engix
             start(), width(width), height(height) {}
         constexpr Rect(Vector2i a, Vector2i b) noexcept :
             start(std::min(a.x, b.x), std::min(a.y, b.y)), width(abs(a.x - b.x)), height(abs(a.y - b.y)) {}
+        Rect(const json::Value& json) noexcept : Rect(fromJson(json)) {}
 
         constexpr bool isAbove(Vector2i point) const noexcept
         {
             return start.x <= point.x && start.x + static_cast<int>(width) >= point.x &&
                 start.y <= point.y && start.y + static_cast<int>(height) >= point.y;
         }
-        constexpr static bool checkIntersection(Rect a, Rect b)
+        constexpr static bool checkIntersection(Rect a, Rect b) noexcept
+        {
+            return !(a.start.x + a.width <= b.start.x || b.start.x + b.width <= a.start.x 
+                || a.start.y + a.height <= b.start.y || b.start.y + b.height <= a.start.y);
+        }
+        constexpr static Rect intersection(Rect a, Rect b) noexcept
         {
             auto aleft = a.start.x;
             auto aright = aleft + a.width;
@@ -39,20 +50,20 @@ namespace engix
             auto bup = b.start.y;
             auto bdown = bup + b.height;
 
-            if (aright < bleft || bright < aleft)
-            {
-                return false;
-            }
-            if (adown < bup || bdown < aup)
-            {
-                return false;
-            }
-            return true; 
+            if (aright <= bleft || bright <= aleft || adown <= bup || bdown <= aup)
+                return {};
+
+            auto left = std::max(aleft, bleft);
+            auto right = std::min(aright, bright);
+            auto up = std::max(aup, bup);
+            auto down = std::min(adown, bdown);
+            
+            return {left, right, right - left, down - up};
         }
+
+        void render(Color color) const noexcept;
         
         constexpr operator SDL_Rect() const noexcept {return {start.x, start.y, static_cast<int>(width), static_cast<int>(height)};}
-
-        operator json::Value() const noexcept {return toJson();}
 
         json::Value toJson() const noexcept
         {
@@ -62,6 +73,11 @@ namespace engix
             json["height"] = height;
             return json;
         }
+        operator json::Value() const noexcept {return toJson();}
+
+        constexpr bool operator==(Rect rect) const noexcept
+        {return start == rect.start && width == rect.width && height == rect.height;}
+        constexpr operator bool() const noexcept {return *this != Rect();}
 
         static Rect fromJson(const json::Value& json) noexcept
         {
