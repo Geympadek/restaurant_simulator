@@ -9,6 +9,7 @@ namespace engix
     public:
         enum Value : uint8_t
         {
+            NONE,
             LEFT,
             RIGHT,
             UP,
@@ -33,7 +34,7 @@ namespace engix
                 return RIGHT;
             if (str == "down")
                 return DOWN;
-            assert(false);
+            return NONE;
         }
         static constexpr const char* toStr(Value val) noexcept
         {
