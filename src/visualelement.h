@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mouse.h"
+#include "window.h"
 #include <functional>
 
 namespace engix
