@@ -8,74 +8,9 @@
 namespace engix
 {
     template <class C>
-    class StrWrap
+    class CharTraits
     {
     public:
-        using String = std::basic_string<C>;
-        using C_str = const C*;
-
-        constexpr StrWrap(C_str ptr) noexcept : _ptr(ptr) {}
-        StrWrap(const String& str) noexcept : _ptr(str.c_str()) {}
-
-        constexpr C operator[](size_t index) const noexcept {return _ptr[index];}
-        constexpr StrWrap operator+(size_t index) const noexcept {return _ptr + index;}
-        constexpr void operator+=(size_t index) noexcept {_ptr += index;}
-        constexpr void operator-=(size_t index) noexcept {_ptr -= index;}
-        constexpr StrWrap operator++() noexcept {return ++_ptr;}
-        constexpr StrWrap operator++(int) noexcept {return _ptr++;}
-        constexpr StrWrap operator--() noexcept {return --_ptr;}
-        constexpr StrWrap operator--(int) noexcept {return --_ptr;}
-    public:
-        constexpr C_str c_str() const noexcept {return _ptr;}
-        constexpr void c_str(C_str ptr) noexcept {_ptr = ptr;}
-
-        constexpr operator C_str() const noexcept {return _ptr;}
-        
-        constexpr String to_str() const noexcept {return String(_ptr);}
-    private:
-        C_str _ptr;
-    };
-
-    template <class C>
-    class Substr
-    {
-    public:
-        using Iterator = const C*;
-        using String = std::basic_string<C>;
-
-        constexpr Substr() : _begin(nullptr), _end(nullptr) {}
-        Substr(String::const_iterator begin, String::const_iterator end) noexcept
-        {
-            if (begin == end)
-            {
-                _begin = _end = nullptr;
-            }
-            else
-            {
-                _begin = &*begin;
-                _end = _begin + std::distance(begin, end);
-            }
-        }
-        constexpr Substr(Iterator begin, Iterator end) noexcept
-        : _begin(begin), _end(end) {}
-        
-        Substr(const String& str) noexcept
-        : Substr(str.begin(), str.end()) {}
-
-        constexpr Substr(const C* c_str) noexcept
-        : _begin(c_str), _end(_begin + std::char_traits<C>::length(c_str)) {}
-
-        constexpr Substr(StrWrap<C> str) noexcept
-        : Substr(str.c_str()) {}
-
-        constexpr size_t find(C c) const noexcept {return std::find(_begin, _end, c);}
-        constexpr size_t findSize() const noexcept {return std::distance(_begin, _end);}
-        
-        String toString() const noexcept
-        {
-            return {_begin, _end};
-        }
-
         static constexpr uint8_t hexFromChar(C c)
         {
             if constexpr (std::is_same_v<C, char>)
@@ -168,28 +103,6 @@ namespace engix
             }
             throw std::invalid_argument("Unexpected char in hex conversion.");
         }
-
-        static constexpr uint32_t hexFromString(Substr str)
-        {
-            uint32_t hex = 0;
-            
-            for (auto c : str)
-            {
-                auto value = hexFromChar(c);
-                if (hex == 0 && value == 0)
-                {
-                    continue;
-                }
-                hex <<= 4;
-                hex += value;
-            }
-            return hex;
-        }
-        constexpr uint32_t toHex() const
-        {
-            return hexFromString(*this);
-        }
-
         static constexpr C toupper(C c) noexcept
         {
             if constexpr (std::is_same_v<C, char>)
@@ -222,7 +135,6 @@ namespace engix
             }
             return c;
         }
-
         static constexpr C tolower(C c) noexcept
         {
             if constexpr (std::is_same_v<C, char>)
@@ -255,6 +167,99 @@ namespace engix
             }
             return c;
         }
+    };
+    //Simple replacement to const char strings.
+    template <class C>
+    class C_Str
+    {
+        using Ptr = const C*;
+    public:
+        constexpr C_Str(Ptr ptr) noexcept : _ptr(ptr) {}
+
+        constexpr size_t size() const noexcept {return std::char_traits<C>::length(_ptr);} 
+        
+        constexpr bool operator==(C_Str str) const noexcept
+        {
+            auto a = _ptr;
+            auto b = str._ptr;
+
+            while (true)
+            {
+                if (CharTraits<C>::toupper(*a) != CharTraits<C>::toupper(*b))
+                    return false;
+                if (*a == 0)
+                    return true;
+                a++;
+                b++;
+            }
+        }
+
+        constexpr Ptr c_str() const noexcept {return _ptr;}
+
+        constexpr operator Ptr() const noexcept {return _ptr;}
+    private:
+        Ptr _ptr;
+    };
+
+    template <class C>
+    class Substr
+    {
+    public:
+        using Iterator = const C*;
+        using String = std::basic_string<C>;
+
+        constexpr Substr() : _begin(nullptr), _end(nullptr) {}
+        Substr(String::const_iterator begin, String::const_iterator end) noexcept
+        {
+            if (begin == end)
+            {
+                _begin = _end = nullptr;
+            }
+            else
+            {
+                _begin = &*begin;
+                _end = _begin + std::distance(begin, end);
+            }
+        }
+        constexpr Substr(Iterator begin, Iterator end) noexcept
+        : _begin(begin), _end(end) {}
+        
+        Substr(const String& str) noexcept
+        : Substr(str.begin(), str.end()) {}
+
+        constexpr Substr(const C* c_str) noexcept
+        : _begin(c_str), _end(_begin + std::char_traits<C>::length(c_str)) {}
+        constexpr Substr(const C_Str<C>& c_str) noexcept
+        : Substr(c_str) {}
+
+        constexpr size_t find(C c) const noexcept {return std::find(_begin, _end, c);}
+        constexpr size_t findSize() const noexcept {return std::distance(_begin, _end);}
+        
+        String toString() const noexcept
+        {
+            return {_begin, _end};
+        }
+
+        static constexpr uint32_t hexFromString(Substr str)
+        {
+            uint32_t hex = 0;
+            
+            for (auto c : str)
+            {
+                auto value = CharTraits<C>::hexFromChar(c);
+                if (hex == 0 && value == 0)
+                {
+                    continue;
+                }
+                hex <<= 4;
+                hex += value;
+            }
+            return hex;
+        }
+        constexpr uint32_t toHex() const
+        {
+            return hexFromString(*this);
+        }
 
         static constexpr bool compare(Substr a, Substr b) noexcept
         {
@@ -263,11 +268,12 @@ namespace engix
 
             while (true)
             {
+                bool bIsEnd = bIt == b._end;
                 if (aIt == a._end)
-                    return bIt == b._end;
-                if (bIt == b._end)
+                    return bIsEnd;
+                if (bIsEnd)
                     return false;
-                if (toupper(*aIt) != toupper(*bIt))
+                if (CharTraits<C>::toupper(*aIt) != CharTraits<C>::toupper(*bIt))
                     return false;
                 
                 aIt++;
@@ -316,7 +322,7 @@ namespace engix
 template<class T>
 struct std::hash<engix::Substr<T>>
 {
-    size_t operator()(const engix::Substr<T>& substr) const noexcept
+    constexpr size_t operator()(const engix::Substr<T>& substr) const noexcept
     {
         //Some primes
         constexpr size_t A = 54059;
@@ -331,3 +337,24 @@ struct std::hash<engix::Substr<T>>
         return h;
     }
 };
+
+
+template<class T>
+struct std::hash<engix::C_Str<T>>
+{
+    constexpr size_t operator()(const engix::C_Str<T>& str) const noexcept
+    {
+        //Some primes
+        constexpr size_t A = 54059;
+        constexpr size_t B = 76963;
+        constexpr size_t FIRSTH = 37;
+
+        size_t h = FIRSTH;
+        for (auto it = str.c_str(); *it != 0; it++)
+        {
+            h = (h * A) ^ (static_cast<size_t>(*it) * B);
+        }
+        return h;
+    }
+};
+
