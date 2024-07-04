@@ -109,7 +109,7 @@ namespace engix
         }
 
         template <typename _T>
-        constexpr bool operator==(const Vector2<_T>& a) noexcept
+        constexpr bool operator==(Vector2<_T> a) noexcept
         {
             return x == a.x && y == a.y;
         }
