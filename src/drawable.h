@@ -22,6 +22,7 @@ namespace engix
         virtual void render(const Camera& camera) const;
     protected:
         void renderClip(const Camera& camera, Rect clip) const;
+        void renderInfo(const Camera& cam, Vector2d& renderPos, double& scale) const;
     private:
         //Hoping that this function will not be accessable
         virtual void render() const override {}
