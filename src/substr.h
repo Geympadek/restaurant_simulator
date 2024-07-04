@@ -174,6 +174,7 @@ namespace engix
     {
         using Ptr = const C*;
     public:
+        constexpr C_Str() noexcept : _ptr(nullptr) {}
         constexpr C_Str(Ptr ptr) noexcept : _ptr(ptr) {}
 
         constexpr size_t size() const noexcept {return std::char_traits<C>::length(_ptr);} 
