@@ -12,6 +12,13 @@
 #include "boxTemplate.h"
 #include "font.h"
 #include "drawable.h"
+#include "controls.h"
+#include "window.h"
+#include "object.h"
+#include "animation.h"
+#include "character.h"
+#include "pack.h"
+#include "player.h"
 
 using std::unordered_map;
 using std::string;
@@ -30,12 +37,14 @@ namespace engix
         Application();
         ~Application();
 
-        void loadAssets();
+        void loadResources();
 
         void loop();
 
         void update();
         void render();
+
+        std::shared_ptr<Drawable> getDrawableById(size_t id);
     private:
         Input currentInput;
         Input prevInput;
@@ -48,8 +57,6 @@ namespace engix
 
         std::vector<std::shared_ptr<Drawable>> drawables;
 
-        unordered_map<string, shared_ptr<Texture>> textures;
-        unordered_map<string, shared_ptr<BoxTemplate>> templates;
-        unordered_map<string, shared_ptr<Font>> fonts;
+        unordered_map<C_Str<char>, Pack> resources;
     };
 }
