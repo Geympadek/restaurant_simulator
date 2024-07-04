@@ -13,12 +13,14 @@ Animation Animation::load(const assets::Path &path)
 
     animation._sheet = Texture::load(path + ".png");
     
-    // auto json = assets::loadJson(path + ".json");
     auto json = json::Value::loadFromFile(path + ".json");
     animation.loadDelays(json);
+    animation._orientation = (json["orientation"].as<std::string>() == "vertical" ? Orientation::VERTICAL : Orientation::HORIZONTAL);
 
-    animation._width = animation._sheet.width() / animation._numberOfFrames;
+    animation._width = animation._sheet.width();
     animation._height = animation._sheet.height();
+    (animation._orientation == Orientation::HORIZONTAL ? animation._width : animation._height) /= animation._numberOfFrames;
+
     animation._isLoaded = true;
     return animation;
 }
@@ -54,6 +56,11 @@ void engix::Animation::free() noexcept
 
 void engix::Animation::render(long double millis, Vector2i position, double scale, Rotation rotation, Vector2i center, Texture::Flip flip) const
 {
+    render(millis, position, Rect(0, 0, _width, _height), scale, rotation, center, flip);
+}
+
+void engix::Animation::render(long double millis, Vector2i position, Rect clip, double scale, Rotation rotation, Vector2i center, Texture::Flip flip) const
+{
     if (!_isLoaded)
         return;
 
@@ -73,6 +80,11 @@ void engix::Animation::render(long double millis, Vector2i position, double scal
         }
         frame++;
     }
-    Rect clip(Vector2i{frame * _width, 0}, _width, _height);
-    _sheet.render(position, clip, scale, rotation, center, flip);
+    Vector2i offset;
+    if (_orientation == Orientation::HORIZONTAL)
+        offset.x = _width * frame;
+    else
+        offset.y = _height * frame;
+    Rect renderClip(offset + clip.start, clip.width, clip.height);
+    _sheet.render(position, renderClip, scale, rotation, center, flip);
 }

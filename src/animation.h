@@ -26,11 +26,13 @@ namespace engix
         void free() noexcept;
         
         void render(long double millis, Vector2i position, double scale = 1.0, Rotation rotation = {}, Vector2i center = {}, Texture::Flip flip = Texture::Flip::NONE) const;
+        void render(long double millis, Vector2i position, Rect clip, double scale = 1.0, Rotation rotation = {}, Vector2i center = {}, Texture::Flip flip = Texture::Flip::NONE) const;
     public:
         int width() const {return _width;}
         int height() const {return _height;}
         int numberOfFrames() const {return _numberOfFrames;}
         long double duration() const {return _duration;}
+        Orientation orientation() const {return _orientation;}
     private:
         void loadDelays(const json::Value& json);
     private:
@@ -38,6 +40,8 @@ namespace engix
         int _numberOfFrames = 0;
         std::vector<long double> _delays;
         long double _duration = 0;
+
+        Orientation _orientation = Orientation::HORIZONTAL;
 
         int _width = 0;
         int _height = 0;
